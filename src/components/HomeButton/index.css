@@ -1,0 +1,32 @@
+.back-to-home {
+  width: 34px;
+  height: 34px;
+  z-index: 999;
+  cursor: pointer;
+  padding: 5px;
+  display: none;
+  background: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 65%);
+}
+
+.show-button-home .back-to-home {
+  display: block;
+  margin-left: 10px;
+}
+.locateButton {
+  position: absolute;
+  top: 80px;
+  left: 2px;
+  z-index: 999;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: none;
+  padding: 5px;
+  background: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 65%);
+}
