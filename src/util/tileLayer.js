@@ -1,8 +1,10 @@
 const tileLayer =  [
+  
+ 
 
   {
     name:'Basic',
-    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+    // attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
     url:'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
   },
   {
@@ -20,12 +22,19 @@ const tileLayer =  [
 },
   {
   name: "Osm Mapnik",
-  attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a>OpenStreetMap</a> contributors',
+  attribution: '',
   url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 },
 {
   name: "Dark",
-  attribution: '&copy; <a href="http://cartodb.com/attributions">CartoDB</a> contributors',
+  attribution: '',
   url: 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png'
-}]
+},
+{name:'premium',
+url:'https://maptiles.p.rapidapi.com/en/map/v1/{z}/{x}/{y}.png?rapidapi-key=185229c8e1mshc895d614611193bp159780jsn771c4412b753', 
+attribution: '',
+maxZoom: 19,
+},
+{name:'stamen',attributoin:'',url:'http://{s}.sm.mapstack.stamen.com/(toner-background,$fff[difference],toner-lines[destination-in])/{z}/{x}/{y}.png'},
+{name:'blank',attribution:'',url:''}]
 export default tileLayer;

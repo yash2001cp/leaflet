@@ -4,80 +4,118 @@ import tileLayers from '../../util/tileLayer';
 import ReactDOMServer from "react-dom/server";
 import 'leaflet-fullscreen/dist/Leaflet.fullscreen.js';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
+import glify from 'leaflet.glify';
 import LocationButton from '../LocationButton';
-import portGeoJson from '../../data/World_Port_Index+(1)+(1).geojson.json';
+import cPortJsonData from '../../data/World_Port_Index+(1)+(1).geojson.json';
+import airPortJsonData from '../../data/features.json'
+import countriesJson from '../../data/custom.geo (5).json';
 import polyGons from '../../data/abc.json'
+import railsPoints from '../../data/expors (1).geojson.json'
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 // import countries from '../../data/countries.geojson.json'
 import L from 'leaflet';
-// import newMarker from "../../data/pin.png";
+import RoutingMachine from '../RoutingMachine';
 import Card from '../Card';
+// import { MBTiles } from 'leaflet-tilelayer-mbtiles-ts';
+import './styles.css';
 const center = [22.366904, 77.534981];
-// const pointerIcon = new L.Icon({
-//     iconUrl: newMarker,
-//     iconSize: [16, 16], 
-//     iconAnchor: [8, 13], 
-//     popupAnchor: [0, -10],
-//   });
   
-const Map = ({setAlertInfo,showPorts,showPolygons,isClustered}) => {
+const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered}) => {
     const [map, setMap] = useState(null);
-    
-    const onEachFeature = (feature, layer) => {
+    const [data, setData] = useState({})
+    const getPortDetails = (feature, layer) => {
         layer.bindPopup(ReactDOMServer.renderToString(<Card props={feature.properties} />));
       }
+
+    const onEachPortFeature = (feature, layer) => {
+        layer.on('mouseover', function (e) {
+            L.DomEvent.stopPropagation(e);
+            getPortDetails(feature, layer);
+            this.openPopup();
+          });
+          layer.on('mouseout', function () {
+            this.closePopup();
+          });
+    }
     const getPolygonName = (feature, layer) => {
-        layer.bindPopup(feature.properties.DISTRICT);
+        layer.bindPopup(feature.properties.name_en);
     }
     const onEachPolygonFeature =(feature, layer)=> {
+          layer.setStyle({
+            // fillColor: '#eb4034',
+            weight: 1,
+            // color: '#eb4034',
+            fillOpacity: 0,
+          });
         layer.on('mouseover', function (e) {
-      
+        L.DomEvent.stopPropagation(e);
           getPolygonName(feature, layer);
       
           this.openPopup();
       
           // style
-          this.setStyle({
-            fillColor: '#eb4034',
-            weight: 2,
-            color: '#eb4034',
-            fillOpacity: 0.7,
-          });
+        //   this.setStyle({
+        //     // fillColor: '#eb4034',
+        //     weight: 1,
+        //     // color: '#eb4034',
+        //     fillOpacity: 0,
+        //   });
         });
-        layer.on('mouseout', function () {
-          this.closePopup();
-          // style
-          this.setStyle({
-            fillColor: '#3388ff',
-            weight: 2,
-            color: '#3388ff',
-            fillOpacity: 0.2,
-          });
-        })};
+        // layer.on('mouseout', function () {
+        //   this.closePopup();
+        //   // style
+        // //   this.setStyle({
+        // //     weight: 1,
+        // //   });
+        // })
+    };
     const pointToLayer = (feature, latlng) => {
         return L.circleMarker(latlng, {
-            fillColor:'#000d37',
+            fillColor:feature?.properties?.PORT_NAME ? '#000d37' : '#ff5722',
             color:'#f6f7f9',
-            weight:2,
+            weight:1,
             radius:5,
             fillOpacity:0.95,
         })
     }
 
-    const handleShowPorts = () => {
-        return <GeoJSON data={portGeoJson} onEachFeature={onEachFeature}   pointToLayer={pointToLayer} />
+    const handleShowPorts = (data) => {
+        return <GeoJSON data={data} onEachFeature={onEachPortFeature}   pointToLayer={pointToLayer} />
     }
+    const fetchData = async () => {
+        let data = await fetch(
+            "https://weak-monkeys-sell-103-143-39-118.loca.lt/docs"
+            )
+            .then((response) => {console.log(response,'ress');return response.json()})
+            .then((geojson) => {
+              console.log("my_data: ", geojson)
+              setData(geojson);
+            })
+           .catch((error) => {
+              console.log(error);
+            });
+    }
+
     useEffect(() => {
-        if(showPolygons) {
+        if(countries) {
             map.flyTo(center,5);
         }
-    },[showPolygons,map])
+    },[countries,map])
     useEffect(() => {
         if(isClustered) {
             map.flyTo(center,1);
         }
     },[isClustered,map])
+
+    useEffect(() => {
+        if(map) {
+            fetchData();
+            // let mbtiles = new MBTiles('https://data.maptiler.com/download/WyI5ZWI0MGVjYS05MDllLTRmNDctOTM3NC1iNzc2OTNjYjAwZTQiLCItMSIsNzkwMV0.Y5hYYQ.LcNQPgUllWLckxovn9oCX0S33aY/maptiler-osm-2017-07-03-v3.6.1-planet.mbtiles?usage=personal', {attribution:'',name:''});
+            // mbtiles.addTo(map);
+
+        }
+    },[map])
     return (
         <MapContainer
             preferCanvas={true}
@@ -88,6 +126,7 @@ const Map = ({setAlertInfo,showPorts,showPolygons,isClustered}) => {
             center={center}
             zoom={5}
             scrollWheelZoom={true}
+            attributionControl={false}
         >
             <ZoomControl position={'topright'} />
             <LayersControl position="topright">
@@ -107,10 +146,12 @@ const Map = ({setAlertInfo,showPorts,showPolygons,isClustered}) => {
             })}
             </LayersControl>
 
-           {showPorts && (isClustered ? <MarkerClusterGroup>{handleShowPorts()}</MarkerClusterGroup> :handleShowPorts()) }
-           {showPolygons && <GeoJSON data={polyGons} onEachFeature={onEachPolygonFeature} weight={1}/>}
+           {cPorts && (isClustered ? <MarkerClusterGroup>{handleShowPorts(cPortJsonData)}</MarkerClusterGroup> :handleShowPorts(cPortJsonData)) }
+           {airPorts && (isClustered ? <MarkerClusterGroup>{handleShowPorts(airPortJsonData)}</MarkerClusterGroup> :handleShowPorts(airPortJsonData)) }
+           {countries && <GeoJSON data={countriesJson} onEachFeature={onEachPolygonFeature} weight={1} /> }
             <LocationButton map={map} setAlertInfo={setAlertInfo}/>
-            <ScaleControl imperial={false} />
+            <ScaleControl imperial={false} value={10}/>
+            <RoutingMachine />
         </MapContainer>
     );
 }
