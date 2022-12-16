@@ -223,3 +223,12 @@ main {
 .MuiTypography-root{
   color:#167caa;
 }
+.active-airport .MuiFormControlLabel-label {
+  color: #ff5722 !important;
+}
+.active-seaport .MuiFormControlLabel-label {
+  color: #000d37 !important;
+}
+.active-path .MuiFormControlLabel-label {
+  color: purple !important;
+}

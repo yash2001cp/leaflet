@@ -11,8 +11,8 @@ const pointerIcon = new L.Icon({
 const createRoutingMachineLayer = (props) => {
   const instance = L.Routing.control({
     waypoints: [
-      L.latLng(12.990842, 80.362759),
-      L.latLng(30.707305, 76.877689)
+      L.latLng( 32.646207, -16.916705),
+      L.latLng( 32.863889,-17.176719)
     ],
     lineOptions: {
         styles: [
@@ -32,7 +32,8 @@ const createRoutingMachineLayer = (props) => {
     routeWhileDragging: true,
     draggableWaypoints: true,
     fitSelectedRoutes: true,
-    showAlternatives: true,
+    showAlternatives: false,
+    summaryTemplate: '<div class="osrm-directions-summary"><h2>{name}</h2><h3>{distance}, {time}</h3></div>',
     createMarker: function (i, pos, n){ 
         console.log('values',pos);
         return L.marker (pos.latLng, {
@@ -41,7 +42,17 @@ const createRoutingMachineLayer = (props) => {
         });
     }
   });
-
+  instance.on('routesfound', function (e) {
+    const roadTo = e.routes[0].coordinates.map((latlng) => {
+      return [latlng.lat,latlng.lng];
+    });
+      // const element = document.createElement("a");
+      // const textFile = new Blob([JSON.stringify(roadTo)], {type: 'text/plain'}); //pass data from localStorage API to blob
+      // element.href = URL.createObjectURL(textFile);
+      // element.download = "userFile.txt";
+      // document.body.appendChild(element); 
+      // element.click();
+  });
   return instance;
 };
 

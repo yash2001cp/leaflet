@@ -6,7 +6,6 @@ import L from "leaflet";
 const LocationButton = ({setAlertInfo}) => {
     const map = useMap();
     useEffect(() => {
-      console.log('map_changed');
       const customControl = L.Control.extend({
         options: {
           position: "topleft",
@@ -34,13 +33,11 @@ const LocationButton = ({setAlertInfo}) => {
         _clicked: function (e) {
           L.DomEvent.stopPropagation(e);
           // this.removeLocate();
-          console.log('clicked')
           this._checkLocate();
           
           return;
         },
         _checkLocate: function () {
-          console.log('checkLocate');
           return this._locateMap();
         },
   
@@ -59,7 +56,6 @@ const LocationButton = ({setAlertInfo}) => {
   
           // start locate
          
-          console.log('start locate');
           setAlertInfo({text:'Getting your location.....',severity:'info',duration:9000})
           this._navId = navigator.geolocation.watchPosition((e) => this.onLocationFound(e),
           (error) => {
@@ -74,7 +70,6 @@ const LocationButton = ({setAlertInfo}) => {
         });
           navigator.geolocation.clearWatch(this._navId);
           const curLocation = [e.coords.latitude, e.coords.longitude];
-          console.log('cur',curLocation);
           this.addCircle(e.coords).addTo(this.featureGroup()).addTo(map);
           this.addMarker(e.coords).addTo(this.featureGroup()).addTo(map);
           map.flyToBounds([curLocation]);
