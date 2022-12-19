@@ -6,12 +6,23 @@ const  markerColor= {
 };
 module.exports = {
   tileLayer :  [
+    {
+      name:'stadia',
+      url:'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
+      attribution:''
+     },
+      { //style URL
+        name:'maptiler',
+        url:'https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}.png?key=plLZXQlJHwYmvtwLqzhu',
+        tileSize: 512,
+        zoomOffset: -1,
+        minZoom: 1,
+        attribution: "\u003ca href=\"https://www.maptiler.com/copyright/\" target=\"_blank\"\u003e\u0026copy; MapTiler\u003c/a\u003e \u003ca href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\"\u003e\u0026copy; OpenStreetMap contributors\u003c/a\u003e",
+        crossOrigin: true
+      }
+    ,
   
- {
-  name:'stadia',
-  url:'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
-  attribution:''
- },
+ 
 {name:'bright',
 url:'https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png',
 attribution:''},
