@@ -217,16 +217,17 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
     };
     const pointToLayer = (feature, latlng) => {
         const div = document.createElement("div");
-        div.innerHTML = "+Add to div";
+        div.innerHTML = "+Add to queue";
         div.className = 'add-to-queue';
         div.onclick = () =>  {
             setCurLoc((prev) => ([...prev, [latlng.lat,latlng.lng]]))
+            map.closePopup();
         }
         return L.circleMarker(latlng, {
             fillColor:feature?.properties?.PORT_NAME ? '#000d37' : '#ff5722',
             color:'#f6f7f9',
             weight:1,
-            radius:8,
+            radius:7,
             fillOpacity:0.95,
         }).bindPopup(div)
 
@@ -360,8 +361,11 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
                     return <CircleMarker center={point} radius={7} fillColor='#000d37' color='cyan' weight={5}/>
                 })}
             </>}
-            {seaRouteData && seaRouteData.length > 1 && 
-                ( <Polyline pathOptions={{fillColor:'cyan',color:'#000d37',weight:1}} positions={seaRouteData}/>)
+            {seaRouteData && seaRouteData.length > 1 && <>
+                {seaRouteData.map((route) => {
+                    return route && route.length > 1 ? <Polyline pathOptions={{color:'#000d37',weight:1}} positions={route}/> : null;
+                })}
+            </>
             }
             <Fullscreen />
         </MapContainer>
