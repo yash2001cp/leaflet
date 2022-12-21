@@ -7770,6 +7770,16 @@ leaflet-routing-machine@^3.2.12:
     "@mapbox/polyline" "^0.2.0"
     osrm-text-instructions "^0.13.2"
 
+leaflet.animatedmarker@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/leaflet.animatedmarker/-/leaflet.animatedmarker-1.0.0.tgz#af96e2da8f9772aa189456cc4c1b7902b5fdc284"
+  integrity sha512-dURiGulr/wTf2/jY1b5JxETpPdNIvU5UGtmmz3FIjdImEfbYShgZHwRepeywjjE7m02kF8nLjD5juE1z+tnWkA==
+
+leaflet.fullscreen@^2.0.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/leaflet.fullscreen/-/leaflet.fullscreen-2.4.0.tgz#8503c69b6f6afe6f54594c9cdd5e4f131cfa97b4"
+  integrity sha512-41O0ikdUR0bVC0QfoFN3W5S+9yoeHqL74i0QQafa/W79+ij/G7IRZwpfwPuxoNwpydoUJ/9Mq/6Hp7WZOnkWzQ==
+
 leaflet.glify@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/leaflet.glify/-/leaflet.glify-3.2.0.tgz#0bd1157e2ac6e6aa70f20adf26b736d9104363be"
@@ -10165,6 +10175,15 @@ react-is@^18.2.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.2.0.tgz#199431eeaaa2e09f86427efbb4f1473edb47609b"
   integrity sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
 
+react-leaflet-fullscreen-plugin@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-leaflet-fullscreen-plugin/-/react-leaflet-fullscreen-plugin-1.0.1.tgz#b9f7223ae69982e2921ec82b9d9530e8f50657c5"
+  integrity sha512-yjRdMI/ue4EEDOvUw01nfIrVLt2GqJE2GoyivK4D/r09BV7BKLIqpmRI8gyyhfPieUOZq/cm06J14JbQDFTuyA==
+  dependencies:
+    "@react-leaflet/core" "^1.0.2"
+    leaflet.fullscreen "^2.0.0"
+    screenfull "^5.1.0"
+
 react-leaflet-markercluster@^3.0.0-rc1:
   version "3.0.0-rc1"
   resolved "https://registry.yarnpkg.com/react-leaflet-markercluster/-/react-leaflet-markercluster-3.0.0-rc1.tgz#4e45392d599fb410eac413aeee6cb52f51d0fc5c"
@@ -10896,6 +10915,11 @@ schema-utils@^3.0.0:
     "@types/json-schema" "^7.0.6"
     ajv "^6.12.5"
     ajv-keywords "^3.5.2"
+
+screenfull@^5.1.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/screenfull/-/screenfull-5.2.0.tgz#6533d524d30621fc1283b9692146f3f13a93d1ba"
+  integrity sha512-9BakfsO2aUQN2K9Fdbj87RJIEZ82Q9IGim7FqM5OsebfoFC6ZHXgDq/KvniuLTPdeM8wY2o6Dj3WQ7KeQCj3cA==
 
 select-hose@^2.0.0:
   version "2.0.0"

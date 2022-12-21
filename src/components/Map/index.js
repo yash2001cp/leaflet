@@ -27,6 +27,9 @@ import truckIcon from '../../data/ic-truck.svg';
 import air from '../../data/ic-air.svg';
 import "leaflet.motion/dist/leaflet.motion.js";
 import demoRoute from '../../data/demoRoute.json'
+import Fullscreen from 'react-leaflet-fullscreen-plugin';
+import "leaflet.animatedmarker/src/AnimatedMarker";
+
 
 const {overlay,tileLayer,markerOptions,getMidPoint} = require('../../util/assets')
 const center = [22.366904, 77.534981];
@@ -197,7 +200,7 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
             zoomControl={false}
             whenCreated={whenCreated}
             whenReady={() => setAlertInfo({text:"Map is ready!!",severity:"success",duration:500})}
-            fullscreenControl={true}
+            // fullscreenControl={true}
             center={center}
             zoom={5}
             scrollWheelZoom={true}
@@ -266,11 +269,12 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
                 </>);
             })}
             {(developerMode && developerMode.length > 0) && <>
-                <Polyline pathOptions={{color:'cyan',weight:1}} positions={developerMode}/>
+                <Polyline pathOptions={{color:'#000d37',weight:1}} positions={developerMode}/>
                 {developerMode.map((point) => {
                     return <CircleMarker center={point} radius={3} fillColor='#000d37' color='#fffff' weight={3}/>
                 })}
             </>}
+            <Fullscreen />
         </MapContainer>
     );
 }
