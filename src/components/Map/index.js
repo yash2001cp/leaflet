@@ -4,6 +4,7 @@ import ReactDOMServer from "react-dom/server";
 import 'maplibre-gl';
 import '@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl';
 import LocationButton from '../LocationButton';
+import { Button } from '@mui/material';
 import cPortJsonData from '../../data/World_Port_Index+(1)+(1).geojson.json';
 // import postalCode from '../../data/geonames-postal-code.geojson.json'
 import airPortJsonData from '../../data/features.json'
@@ -20,8 +21,6 @@ import Card from '../Card';
 import routes from '../../data/uniqueRoutes.json'
 // import 'Leaflet.TileLayer.MBTiles'
 import './styles.css';
-import '../../util/fullScreen/fullScreen-util.js';
-import '../../util/fullScreen/fullscreen-util.css';
 import shipIcon from '../../data/ic-ship.svg';
 import truckIcon from '../../data/ic-truck.svg';
 import air from '../../data/ic-air.svg';
@@ -29,7 +28,6 @@ import "leaflet.motion/dist/leaflet.motion.js";
 import demoRoute from '../../data/demoRoute.json'
 import Fullscreen from 'react-leaflet-fullscreen-plugin';
 import "leaflet.animatedmarker/src/AnimatedMarker";
-
 
 const {overlay,tileLayer,markerOptions,getMidPoint} = require('../../util/assets')
 const center = [22.366904, 77.534981];
@@ -103,26 +101,28 @@ const airPath = L.motion.polyline(demoRoute.air.path, {
 const sqGroup = L.motion.seq([
     roadFrom, shippingPath, roadTo
 ]);
-const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoutes,developerMode,setDeveloperMode}) => {
+
+
+const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoutes,curLoc, setCurLoc,seaRouteData}) => {
     const [map, setMap] = useState(null);
+    console.log(curLoc, 'curloc');
     // const mb = L.tileLayer.mbTiles('../../data/countries-raster.mbtiles', {
 	// 	minZoom: 0,
 	// 	maxZoom: 6
 	// })
-    const getPortDetails = (feature, layer) => {
-        layer.bindPopup(ReactDOMServer.renderToString(<Card props={feature.properties} />));
-      }
+    // const getPortDetails = (feature, layer) => {
+    //     layer.bindPopup(ReactDOMServer.renderToString(<Button >+Add to queue</Button>)).click();
+    //   }
 
-    const onEachPortFeature = (feature, layer) => {
-        layer.on('mouseover', function (e) {
-            L.DomEvent.stopPropagation(e);
-            getPortDetails(feature, layer);
-            this.openPopup();
-          });
-          layer.on('mouseout', function () {
-            this.closePopup();
-          });
-    }
+    // const onEachPortFeature = (feature, layer) => {
+    //     layer.on('click', function (e) {
+    //         getPortDetails(feature, layer);
+    //         this.openPopup();
+    //       });
+    //     //   layer.on('mouseout', function () {
+    //     //     this.closePopup();
+    //     //   });
+    // }
     const getPolygonName = (feature, layer) => {
         layer.bindPopup(feature?.properties?.name_en);
     }
@@ -140,27 +140,37 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
         });
     };
     const pointToLayer = (feature, latlng) => {
+        const div = document.createElement("div");
+        div.innerHTML = "+Add to div";
+        div.className = 'add-to-queue';
+        div.onclick = () =>  {
+            setCurLoc((prev) => ([...prev, [latlng.lat,latlng.lng]]))
+        }
         return L.circleMarker(latlng, {
             fillColor:feature?.properties?.PORT_NAME ? '#000d37' : '#ff5722',
             color:'#f6f7f9',
             weight:1,
             radius:5,
             fillOpacity:0.95,
-        })
+        }).bindPopup(div)
 
     }
 
     const handleShowPorts = (data) => {
-        return <GeoJSON data={data} onEachFeature={onEachPortFeature}   pointToLayer={pointToLayer} />
+        return <GeoJSON data={data}  pointToLayer={pointToLayer} />
     }
 
-    const handleClickOnMap = (e) => {
-        setAlertInfo({text:`lat: ${e.latlng.lat}, lng: ${e.latlng.lng}`,severity:'info',duration:5000})
-        setDeveloperMode((prev) => [...(prev || []), [e.latlng.lat, e.latlng.lng]]);
-        
-    }
+    // const handleClickOnMap = (e) => {
+    //     setAlertInfo({text:`lat: ${e.latlng.lat}, lng: ${e.latlng.lng}`,severity:'info',duration:5000})        
+    // }
+    // const customPopup =new  L.Popup(ReactDOMServer.renderToString(<CustomPopup curLoc={curLoc}/>)); 
+    
     const whenCreated = (map) => {
-        map.on('click', handleClickOnMap);
+        // map.on('contextmenu',(e) => {
+        //     console.log('rightclick',e);
+        //     customPopup.setLatLng(e.latlng);
+        //     map.openPopup(customPopup);
+        // });
         setMap(map);
     }
     useEffect(() => {
@@ -194,6 +204,7 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
     //     }
     // },[map]);
    
+    
     return (
         <MapContainer
             preferCanvas={true}
@@ -268,12 +279,13 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
                     <CircleMarker center={sea.path.slice(-1)[0]} radius={3} fillColor='#000d37' weight={3}/>
                 </>);
             })}
-            {(developerMode && developerMode.length > 0) && <>
-                <Polyline pathOptions={{color:'#000d37',weight:1}} positions={developerMode}/>
-                {developerMode.map((point) => {
-                    return <CircleMarker center={point} radius={3} fillColor='#000d37' color='#fffff' weight={3}/>
+            {(curLoc && curLoc.length > 0) && <>
+                {curLoc.map((point) => {
+                    return <CircleMarker center={point} radius={7} fillColor='#000d37' color='cyan' weight={5}/>
                 })}
             </>}
+            {seaRouteData && seaRouteData.length > 1 && <Polyline pathOptions={{color:'#000d37',weight:1}} positions={seaRouteData}/>
+}
             <Fullscreen />
         </MapContainer>
     );
