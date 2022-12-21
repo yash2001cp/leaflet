@@ -1,3 +1,10 @@
 .leaflet-control-container .leaflet-routing-container-hide {
     display: none;
 }
+.add-to-queue:hover {
+    cursor: pointer;
+    color: blue;
+}
+.add-to-queue:active{
+    color:purple;
+}

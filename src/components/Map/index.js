@@ -1,11 +1,10 @@
 import {React, useState,useEffect} from 'react';
 import { MapContainer, TileLayer ,LayersControl,ScaleControl,ZoomControl,GeoJSON,Polyline, CircleMarker} from 'react-leaflet';
 import ReactDOMServer from "react-dom/server";
-import 'leaflet-fullscreen/dist/Leaflet.fullscreen.js';
-import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 import 'maplibre-gl';
 import '@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl';
 import LocationButton from '../LocationButton';
+import { Button } from '@mui/material';
 import cPortJsonData from '../../data/World_Port_Index+(1)+(1).geojson.json';
 import jsonData from '../../data.json'
 // import postalCode from '../../data/geonames-postal-code.geojson.json'
@@ -19,7 +18,8 @@ import 'react-leaflet-markercluster/dist/styles.min.css';
 import L from 'leaflet';
 // import RoutingMachine from '../RoutingMachine';
 import Card from '../Card';
-import routes from '../../data/fin_sea.json';
+// import routes from '../../data/fin_sea.json';
+import routes from '../../data/uniqueRoutes.json'
 // import 'Leaflet.TileLayer.MBTiles'
 import './styles.css';
 import shipIcon from '../../data/ic-ship.svg';
@@ -27,10 +27,25 @@ import truckIcon from '../../data/ic-truck.svg';
 import air from '../../data/ic-air.svg';
 import "leaflet.motion/dist/leaflet.motion.js";
 import demoRoute from '../../data/demoRoute.json'
+import Fullscreen from 'react-leaflet-fullscreen-plugin';
+import "leaflet.animatedmarker/src/AnimatedMarker";
 
 const {overlay,tileLayer,markerOptions,getMidPoint} = require('../../util/assets')
 const center = [22.366904, 77.534981];
+// const shortPath =
+// [[1.85, -78.81666666670003],
+// [-1.001694, -91.060472],
+// [-16.691278, -179.84419400000002],
+// [-16.765444, 179.935],
+// [-16.8166666667, 179.3]]
 
+// for(let i=1;i<shortPath.length;i++) {
+//     if(shortPath[i][1] - shortPath[i-1][1] >= 200) {
+//         shortPath[i][1] -= 360;
+//     }
+// }
+
+const customPath = [[18.740849187479427,72.5889015197754],[18.532504133541487,71.9736671447754],[17.57087992254944,69.9521827697754],[17.403109542186247,68.4140968322754],[16.772608630130165,65.5576515197754],[15.717146051649944,61.8222999572754],[14.996269657813299,59.1855812072754],[14.61363550586799,54.9668312072754],[13.675530329736626,51.6269874572754],[12.69077599238401,48.4629249572754],[12.046466172387982,45.7822608947754],[12.304380456022919,44.2002296447754],[12.73367296681467,43.40921401977539],[14.400771563795455,41.7832374572754],[17.57087992254944,40.4209327697754],[18.990524166984617,39.45413589477539],[21.05622032051235,38.8828468322754],[21.238547899443454,38.97949218750001]];
 // const data =[[42.9833333340001, 144.366666666], [76.4940809715964, 94.25542996179381], [73.97996067509472, 107.72091283254615], [59.008728424273016, 5396.490416021871], [-9.953758775743735, 5412.601130410691], [70.05347188222055, 5500.7188461803635], [-22.481739651448212, 132.54281816252129], [41.089509890835416, 309020.1225212498], [55.133333334, -6.66666666699996]]
 
 let data = [[-27.380726, 153.164001],
@@ -162,34 +177,28 @@ const airPath = L.motion.polyline(demoRoute.air.path, {
 const sqGroup = L.motion.seq([
     roadFrom, shippingPath, roadTo
 ]);
-const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath}) => {
+
+
+const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoutes,curLoc, setCurLoc,seaRouteData}) => {
     const [map, setMap] = useState(null);
-    const [zoom, setZoom] = useState(5);
-    
+    console.log(curLoc, 'curloc');
     // const mb = L.tileLayer.mbTiles('../../data/countries-raster.mbtiles', {
 	// 	minZoom: 0,
 	// 	maxZoom: 6
 	// })
-    const whenCreated = (map) => {
-        map.on('zoom',(e) => {
-            setZoom(e.target._zoom);
-        })
-        setMap(map);
-    }
-    const getPortDetails = (feature, layer) => {
-        layer.bindPopup(ReactDOMServer.renderToString(<Card props={feature.properties} />));
-      }
+    // const getPortDetails = (feature, layer) => {
+    //     layer.bindPopup(ReactDOMServer.renderToString(<Button >+Add to queue</Button>)).click();
+    //   }
 
-    const onEachPortFeature = (feature, layer) => {
-        layer.on('mouseover', function (e) {
-            L.DomEvent.stopPropagation(e);
-            getPortDetails(feature, layer);
-            this.openPopup();
-          });
-          layer.on('mouseout', function () {
-            this.closePopup();
-          });
-    }
+    // const onEachPortFeature = (feature, layer) => {
+    //     layer.on('click', function (e) {
+    //         getPortDetails(feature, layer);
+    //         this.openPopup();
+    //       });
+    //     //   layer.on('mouseout', function () {
+    //     //     this.closePopup();
+    //     //   });
+    // }
     const getPolygonName = (feature, layer) => {
         layer.bindPopup(feature?.properties?.name_en);
     }
@@ -207,18 +216,38 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath}) => {
         });
     };
     const pointToLayer = (feature, latlng) => {
+        const div = document.createElement("div");
+        div.innerHTML = "+Add to div";
+        div.className = 'add-to-queue';
+        div.onclick = () =>  {
+            setCurLoc((prev) => ([...prev, [latlng.lat,latlng.lng]]))
+        }
         return L.circleMarker(latlng, {
             fillColor:feature?.properties?.PORT_NAME ? '#000d37' : '#ff5722',
             color:'#f6f7f9',
             weight:1,
             radius:5,
             fillOpacity:0.95,
-        })
+        }).bindPopup(div)
 
     }
 
     const handleShowPorts = (data) => {
-        return <GeoJSON data={data} onEachFeature={onEachPortFeature}   pointToLayer={pointToLayer} />
+        return <GeoJSON data={data}  pointToLayer={pointToLayer} />
+    }
+
+    // const handleClickOnMap = (e) => {
+    //     setAlertInfo({text:`lat: ${e.latlng.lat}, lng: ${e.latlng.lng}`,severity:'info',duration:5000})        
+    // }
+    // const customPopup =new  L.Popup(ReactDOMServer.renderToString(<CustomPopup curLoc={curLoc}/>)); 
+    
+    const whenCreated = (map) => {
+        // map.on('contextmenu',(e) => {
+        //     console.log('rightclick',e);
+        //     customPopup.setLatLng(e.latlng);
+        //     map.openPopup(customPopup);
+        // });
+        setMap(map);
     }
     useEffect(() => {
         if(isClustered) {
@@ -236,10 +265,6 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath}) => {
         }
     },[showPath,map])
 
-    useEffect(() => {
-        console.log('zoom->',zoom);
-    },[zoom]);
-
     // useEffect(() => {
     //     if(map) {
     //         const key = 'plLZXQlJHwYmvtwLqzhu';
@@ -255,16 +280,19 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath}) => {
     //     }
     // },[map]);
    
+    
     return (
         <MapContainer
             preferCanvas={true}
             zoomControl={false}
             whenCreated={whenCreated}
             whenReady={() => setAlertInfo({text:"Map is ready!!",severity:"success",duration:500})}
-            fullscreenControl={true}
+            // fullscreenControl={true}
             center={center}
             zoom={5}
             scrollWheelZoom={true}
+            minZoom={1}
+            maxZoom={19}
         >
             <ZoomControl position={'topright'} />
             <LayersControl position="topright">
@@ -320,62 +348,21 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath}) => {
                     })}
                 </>;
             })}
-            {/* {routes.slice(0,4000).map((route) => {
-                const path = [route.origin,route.destination];
-                return <>
-                    <Polyline pathOptions={{color:'black',weight:1,opacity:1}} positions={path} />
-                    <CircleMarker center={path[0]} radius={3} fillColor='#000d37' weight={1}/>
-                    <CircleMarker center={path[1]} radius={3} fillColor='#000d37' weight={1}/>
-                </>;
-            })} */}
-            
-            {
-                data.slice(0,-1).map((item,index) => {
-                    console.log(index,index+1)
-                    const path = [item, temp[index+1]];
-                    return <>
-                    <Polyline pathOptions={{color:'black',weight:1,opacity:1}} positions={path} />
-                    <CircleMarker center={path[0]} radius={3} fillColor='#000d37' weight={1}/>
-                    <CircleMarker center={path[1]} radius={3} fillColor='#000d37' weight={1}/>
-                </>;
-                })
-            }
-
-            {
-                data_2.slice(0,-1).map((item,index) => {
-                    console.log(index,index+1)
-                    const path = [item, temp_2[index+1]];
-                    return <>
-                    <Polyline pathOptions={{color:'black',weight:1,opacity:1}} positions={path} />
-                    <CircleMarker center={path[0]} radius={3} fillColor='#000d37' weight={1}/>
-                    <CircleMarker center={path[1]} radius={3} fillColor='#000d37' weight={1}/>
-                </>;
-                })
-            }
-
-                
-            {/* {
-                jsonData.map((item) => {
-                    const path = [item.origin,item.destination];
-                    return <>
-                    <Polyline pathOptions={{color:'black',weight:1,opacity:1}} positions={path} />
-                    <CircleMarker center={path[0]} radius={3} fillColor='#000d37' weight={1}/>
-                    <CircleMarker center={path[1]} radius={3} fillColor='#000d37' weight={1}/>
-                </>;
-                })
-            } */}
-               
-            {
-                data.map((item) => {
-                   return  <CircleMarker center={item} />
-                })
-            }
-
-            {
-                data_2.map((item) => {
-                   return  <CircleMarker center={item} />
-                })
-            }
+            {cRoutes && routes.map(({sea}) => {
+                return !sea?.path ? null : (<>
+                    <Polyline pathOptions={{color:'black',weight:1,opacity:1}} positions={sea.path} />
+                    <CircleMarker center={sea.path[0]} radius={3} fillColor='#000d37' color='#fffff' weight={3}/>
+                    <CircleMarker center={sea.path.slice(-1)[0]} radius={3} fillColor='#000d37' weight={3}/>
+                </>);
+            })}
+            {(curLoc && curLoc.length > 0) && <>
+                {curLoc.map((point) => {
+                    return <CircleMarker center={point} radius={7} fillColor='#000d37' color='cyan' weight={5}/>
+                })}
+            </>}
+            {seaRouteData && seaRouteData.length > 1 && <Polyline pathOptions={{color:'#000d37',weight:1}} positions={seaRouteData}/>
+}
+            <Fullscreen />
         </MapContainer>
     );
 }
