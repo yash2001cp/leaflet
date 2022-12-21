@@ -6,9 +6,8 @@ import Message from "./components/Message";
 import {Box,Switch,FormControlLabel,Button} from '@mui/material'
 import seaRoutes from './data/seaRoutes.json'
 const style = {display:"flex",alignItems:'flex-end',justifyContent:'flex-end',height:'8vh',padding:'1vh',marginRight:'5vw',gap:'1rem'};
-const axios = require('axios');
 
-const url = 'https://1c1e-103-143-39-118.in.ngrok.io/';
+const url = 'https://7a56-103-143-39-118.in.ngrok.io/routes';
 function App() {
   const [alertInfo, setAlertInfo] = useState({});
   const [showCPorts, setShowCPorts] = useState(false);
@@ -37,19 +36,22 @@ function App() {
   //   document.body.appendChild(element); 
   //   element.click();
   // }
-  const getRouteData = async () => {
-    try {
-        const resp = await axios.get(url,{
-          params: {
-            points: curLoc,
-          }
-        });
-        console.log(resp.data);
-    } catch (err) {
-        // Handle Error Here
-        console.error(err);
-    }
-};
+  const getRouteData = () => {
+      try {
+        fetch(url, {
+          "method": "POST",
+          "headers":{"accept":"application/json",
+          "content-type":"application/json"},
+          "body": JSON.stringify({points: curLoc}),
+        })
+        .then(response => response.json())
+        .then(data => setSeaRouteData(data?.routes))
+        .catch(err => console.log(err))
+      }
+      catch (e){
+        console.log(e);
+      }
+  }
 
   const handleGetRoute = () => {
     if(curLoc.length < 2) {

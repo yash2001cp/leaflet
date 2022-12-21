@@ -181,7 +181,7 @@ const sqGroup = L.motion.seq([
 
 const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoutes,curLoc, setCurLoc,seaRouteData}) => {
     const [map, setMap] = useState(null);
-    console.log(curLoc, 'curloc');
+    console.log(seaRouteData, 'sea');
     // const mb = L.tileLayer.mbTiles('../../data/countries-raster.mbtiles', {
 	// 	minZoom: 0,
 	// 	maxZoom: 6
@@ -226,7 +226,7 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
             fillColor:feature?.properties?.PORT_NAME ? '#000d37' : '#ff5722',
             color:'#f6f7f9',
             weight:1,
-            radius:5,
+            radius:8,
             fillOpacity:0.95,
         }).bindPopup(div)
 
@@ -360,8 +360,9 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
                     return <CircleMarker center={point} radius={7} fillColor='#000d37' color='cyan' weight={5}/>
                 })}
             </>}
-            {seaRouteData && seaRouteData.length > 1 && <Polyline pathOptions={{color:'#000d37',weight:1}} positions={seaRouteData}/>
-}
+            {seaRouteData && seaRouteData.length > 1 && 
+                ( <Polyline pathOptions={{fillColor:'cyan',color:'#000d37',weight:1}} positions={seaRouteData}/>)
+            }
             <Fullscreen />
         </MapContainer>
     );
