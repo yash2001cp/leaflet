@@ -46,7 +46,10 @@ function App() {
         "body": JSON.stringify({points: curLoc}),
       })
       .then(response => response.json())
-      .then(data => setSeaRouteData((prev) => ([...prev,data?.routes])))
+      .then(data => {if(data?.routes) {
+        setSeaRouteData((prev) => ([...prev,data?.routes]));
+        setCurLoc([]);
+      }})
       .catch(err => console.log(err))
     }
     catch (e){

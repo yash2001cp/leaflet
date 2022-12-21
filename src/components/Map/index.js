@@ -361,7 +361,7 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
                     return <CircleMarker center={point} radius={7} fillColor='#000d37' color='cyan' weight={5}/>
                 })}
             </>}
-            {seaRouteData && seaRouteData.length > 1 && <>
+            {seaRouteData && seaRouteData.length > 0 && <>
                 {seaRouteData.map((route) => {
                     return route && route.length > 1 ? <Polyline pathOptions={{color:'#000d37',weight:1}} positions={route}/> : null;
                 })}
