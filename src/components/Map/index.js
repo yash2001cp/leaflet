@@ -1,8 +1,6 @@
 import {React, useState,useEffect} from 'react';
-import { MapContainer, TileLayer ,LayersControl,ScaleControl,ZoomControl,GeoJSON,Polyline, CircleMarker,useMap,Marker} from 'react-leaflet';
+import { MapContainer, TileLayer ,LayersControl,ScaleControl,ZoomControl,GeoJSON,Polyline, CircleMarker} from 'react-leaflet';
 import ReactDOMServer from "react-dom/server";
-// import 'leaflet-fullscreen/dist/Leaflet.fullscreen.js';
-// import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 import 'maplibre-gl';
 import '@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl';
 import LocationButton from '../LocationButton';
@@ -19,9 +17,11 @@ import L from 'leaflet';
 // import RoutingMachine from '../RoutingMachine';
 import Card from '../Card';
 // import routes from '../../data/fin_sea.json';
-import routes from '../../data/seaRoutes.json'
+import routes from '../../data/uniqueRoutes.json'
 // import 'Leaflet.TileLayer.MBTiles'
 import './styles.css';
+import '../../util/fullScreen/fullScreen-util.js';
+import '../../util/fullScreen/fullscreen-util.css';
 import shipIcon from '../../data/ic-ship.svg';
 import truckIcon from '../../data/ic-truck.svg';
 import air from '../../data/ic-air.svg';
@@ -30,7 +30,18 @@ import demoRoute from '../../data/demoRoute.json'
 
 const {overlay,tileLayer,markerOptions,getMidPoint} = require('../../util/assets')
 const center = [22.366904, 77.534981];
+const shortPath =
+[[1.85, -78.81666666670003],
+[-1.001694, -91.060472],
+[-16.691278, -179.84419400000002],
+[-16.765444, 179.935],
+[-16.8166666667, 179.3]]
 
+for(let i=1;i<shortPath.length;i++) {
+    if(shortPath[i][1] - shortPath[i-1][1] >= 200) {
+        shortPath[i][1] -= 360;
+    }
+}
 const shippingPathIcon = new L.Icon({
     iconUrl: shipIcon,
     iconSize: [32, 32], 
@@ -47,60 +58,52 @@ const roadPathIcon = new L.Icon({
     iconAnchor: [16, 34], 
   });
 
-// const roadFrom = L.motion.polyline(demoRoute.roadFrom.path, {
-//     color: "#1eb041",weight:2,dashArray: '1,3'
-// }, {
-//     auto: true,
-//     duration: 5000,
-//     easing: L.Motion.Ease.easeInOutQuart
-// }, {
-//     removeOnEnd: true,
-//     icon: roadPathIcon,
-// });
-// const shippingPath = L.motion.polyline(demoRoute.mainRoute.path, {
-//     color: "#0ABBF5",weight:2,
-//     }, {
-//         duration: 12000,
-//         easing: L.Motion.Ease.easeInOutQuart
-//     }, {
-//         removeOnEnd: true,
-//         icon: shippingPathIcon,
-//     });
-// const roadTo = L.motion.polyline(demoRoute.roadTo.path, {
-//     color: "#1eb041",weight:2,dashArray: '2,4'
-// }, {
-//     duration: 5000,
-//     easing: L.Motion.Ease.easeInOutQuart
-// }, {
-//     removeOnEnd: true,
-//     icon: roadPathIcon,
-// });
-// const airPath = L.motion.polyline(demoRoute.air.path, {
-//     color: "purple",weight:2,
-// }, {
-//     duration: 10000,
-//     easing: L.Motion.Ease.easeInOutQuart
-// }, {
-//     // removeOnEnd: true,
-//     icon: airIcon,
-// });
-// const sqGroup = L.motion.seq([
-//     roadFrom, shippingPath, roadTo
-// ]);
-const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoutes}) => {
+const roadFrom = L.motion.polyline(demoRoute.roadFrom.path, {
+    color: "#1eb041",weight:2,dashArray: '1,3'
+}, {
+    auto: true,
+    duration: 5000,
+    easing: L.Motion.Ease.easeInOutQuart
+}, {
+    removeOnEnd: true,
+    icon: roadPathIcon,
+});
+const shippingPath = L.motion.polyline(demoRoute.mainRoute.path, {
+    color: "#0ABBF5",weight:2,
+    }, {
+        duration: 12000,
+        easing: L.Motion.Ease.easeInOutQuart
+    }, {
+        removeOnEnd: true,
+        icon: shippingPathIcon,
+    });
+const roadTo = L.motion.polyline(demoRoute.roadTo.path, {
+    color: "#1eb041",weight:2,dashArray: '2,4'
+}, {
+    duration: 5000,
+    easing: L.Motion.Ease.easeInOutQuart
+}, {
+    removeOnEnd: true,
+    icon: roadPathIcon,
+});
+const airPath = L.motion.polyline(demoRoute.air.path, {
+    color: "purple",weight:2,
+}, {
+    duration: 10000,
+    easing: L.Motion.Ease.easeInOutQuart
+}, {
+    // removeOnEnd: true,
+    icon: airIcon,
+});
+const sqGroup = L.motion.seq([
+    roadFrom, shippingPath, roadTo
+]);
+const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoutes,developerMode,setDeveloperMode}) => {
     const [map, setMap] = useState(null);
-    const [zoom, setZoom] = useState(5);
-    
     // const mb = L.tileLayer.mbTiles('../../data/countries-raster.mbtiles', {
 	// 	minZoom: 0,
 	// 	maxZoom: 6
 	// })
-    const whenCreated = (map) => {
-        map.on('zoom',(e) => {
-            setZoom(e.target._zoom);
-        })
-        setMap(map);
-    }
     const getPortDetails = (feature, layer) => {
         layer.bindPopup(ReactDOMServer.renderToString(<Card props={feature.properties} />));
       }
@@ -145,25 +148,31 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
     const handleShowPorts = (data) => {
         return <GeoJSON data={data} onEachFeature={onEachPortFeature}   pointToLayer={pointToLayer} />
     }
+
+    const handleClickOnMap = (e) => {
+        setAlertInfo({text:`lat: ${e.latlng.lat}, lng: ${e.latlng.lng}`,severity:'info',duration:5000})
+        setDeveloperMode((prev) => [...(prev || []), [e.latlng.lat, e.latlng.lng]]);
+        
+    }
+    const whenCreated = (map) => {
+        map.on('click', handleClickOnMap);
+        setMap(map);
+    }
     useEffect(() => {
         if(isClustered) {
             map.flyTo(center,1);
         }
     },[isClustered,map])
 
-    // useEffect(() => {
-    //     if(showPath && map) {
-    //         sqGroup.addLayer(airPath, true);
-    //         sqGroup.addTo(map);
-    //     }
-    //     else{
-    //         map?.removeLayer(sqGroup);
-    //     }
-    // },[showPath,map])
-
     useEffect(() => {
-        console.log('zoom->',zoom);
-    },[zoom]);
+        if(showPath && map) {
+            sqGroup.addLayer(airPath, true);
+            sqGroup.addTo(map);
+        }
+        else{
+            map?.removeLayer(sqGroup);
+        }
+    },[showPath,map])
 
     // useEffect(() => {
     //     if(map) {
@@ -186,10 +195,12 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
             zoomControl={false}
             whenCreated={whenCreated}
             whenReady={() => setAlertInfo({text:"Map is ready!!",severity:"success",duration:500})}
-            // fullscreenControl={true}
+            fullscreenControl={true}
             center={center}
             zoom={5}
             scrollWheelZoom={true}
+            minZoom={1}
+            maxZoom={19}
         >
             <ZoomControl position={'topright'} />
             <LayersControl position="topright">
@@ -246,13 +257,13 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
                 </>;
             })}
             {cRoutes && routes.map(({sea}) => {
-                return <>
-                    <Polyline pathOptions={{color:'black',weight:1,opacity:1}} positions={sea?.path} />
-                    <CircleMarker center={sea?.path[0]} radius={3} fillColor='#000d37' color='#fffff' weight={3}/>
-                    <CircleMarker center={sea?.path.slice(-1)[0]} radius={3} fillColor='#000d37' weight={3}/>
-                </>;
+                return !sea?.path ? null : (<>
+                    <Polyline pathOptions={{color:'black',weight:1,opacity:1}} positions={sea.path} />
+                    <CircleMarker center={sea.path[0]} radius={3} fillColor='#000d37' color='#fffff' weight={3}/>
+                    <CircleMarker center={sea.path.slice(-1)[0]} radius={3} fillColor='#000d37' weight={3}/>
+                </>);
             })}
-            
+            <Polyline pathOptions={{color:'black',weight:1}} positions={shortPath}/>
         </MapContainer>
     );
 }
