@@ -63,9 +63,13 @@ function App() {
             checked={isDeveloperMode}
             onChange={handleChange}
           />} label="Developer Mode" />
-        {isDeveloperMode && <Button onClick={handleSave}>
-            Save Data
-          </Button>}
+        {isDeveloperMode && <>
+          <Button onClick={handleSave}>
+            Save
+          </Button>
+          
+        </>
+          }
         <FormControlLabel className={showPath ? 'active-path': null} control={ <Switch
             checked={showPath}
             color="secondary"

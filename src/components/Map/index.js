@@ -30,18 +30,20 @@ import demoRoute from '../../data/demoRoute.json'
 
 const {overlay,tileLayer,markerOptions,getMidPoint} = require('../../util/assets')
 const center = [22.366904, 77.534981];
-const shortPath =
-[[1.85, -78.81666666670003],
-[-1.001694, -91.060472],
-[-16.691278, -179.84419400000002],
-[-16.765444, 179.935],
-[-16.8166666667, 179.3]]
+// const shortPath =
+// [[1.85, -78.81666666670003],
+// [-1.001694, -91.060472],
+// [-16.691278, -179.84419400000002],
+// [-16.765444, 179.935],
+// [-16.8166666667, 179.3]]
 
-for(let i=1;i<shortPath.length;i++) {
-    if(shortPath[i][1] - shortPath[i-1][1] >= 200) {
-        shortPath[i][1] -= 360;
-    }
-}
+// for(let i=1;i<shortPath.length;i++) {
+//     if(shortPath[i][1] - shortPath[i-1][1] >= 200) {
+//         shortPath[i][1] -= 360;
+//     }
+// }
+
+const customPath = [[18.740849187479427,72.5889015197754],[18.532504133541487,71.9736671447754],[17.57087992254944,69.9521827697754],[17.403109542186247,68.4140968322754],[16.772608630130165,65.5576515197754],[15.717146051649944,61.8222999572754],[14.996269657813299,59.1855812072754],[14.61363550586799,54.9668312072754],[13.675530329736626,51.6269874572754],[12.69077599238401,48.4629249572754],[12.046466172387982,45.7822608947754],[12.304380456022919,44.2002296447754],[12.73367296681467,43.40921401977539],[14.400771563795455,41.7832374572754],[17.57087992254944,40.4209327697754],[18.990524166984617,39.45413589477539],[21.05622032051235,38.8828468322754],[21.238547899443454,38.97949218750001]];
 const shippingPathIcon = new L.Icon({
     iconUrl: shipIcon,
     iconSize: [32, 32], 
@@ -263,7 +265,12 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
                     <CircleMarker center={sea.path.slice(-1)[0]} radius={3} fillColor='#000d37' weight={3}/>
                 </>);
             })}
-            <Polyline pathOptions={{color:'black',weight:1}} positions={shortPath}/>
+            {(developerMode && developerMode.length > 0) && <>
+                <Polyline pathOptions={{color:'cyan',weight:1}} positions={developerMode}/>
+                {developerMode.map((point) => {
+                    return <CircleMarker center={point} radius={3} fillColor='#000d37' color='#fffff' weight={3}/>
+                })}
+            </>}
         </MapContainer>
     );
 }
