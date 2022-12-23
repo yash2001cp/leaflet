@@ -1,12 +1,13 @@
 import {React, useState,useEffect} from 'react';
-import { MapContainer, TileLayer ,LayersControl,ScaleControl,ZoomControl,GeoJSON,Polyline, CircleMarker} from 'react-leaflet';
+import { MapContainer, TileLayer ,LayersControl,ScaleControl,ZoomControl,GeoJSON,Polyline, CircleMarker, Popup} from 'react-leaflet';
 import ReactDOMServer from "react-dom/server";
 import 'maplibre-gl';
 import '@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl';
 import LocationButton from '../LocationButton';
-import { Button } from '@mui/material';
+import { Button, Tooltip } from '@mui/material';
 import cPortJsonData from '../../data/World_Port_Index+(1)+(1).geojson.json';
 import jsonData from '../../data.json'
+import dots from '../../data/dots.json'
 // import postalCode from '../../data/geonames-postal-code.geojson.json'
 import airPortJsonData from '../../data/features.json'
 import countriesJson from '../../data/custom.geo (5).json';
@@ -29,6 +30,7 @@ import "leaflet.motion/dist/leaflet.motion.js";
 import demoRoute from '../../data/demoRoute.json'
 import Fullscreen from 'react-leaflet-fullscreen-plugin';
 import "leaflet.animatedmarker/src/AnimatedMarker";
+import lines from '../../data/lines.json'
 
 const {overlay,tileLayer,markerOptions,getMidPoint} = require('../../util/assets')
 const center = [22.366904, 77.534981];
@@ -45,81 +47,8 @@ const center = [22.366904, 77.534981];
 //     }
 // }
 
-const customPath = [[18.740849187479427,72.5889015197754],[18.532504133541487,71.9736671447754],[17.57087992254944,69.9521827697754],[17.403109542186247,68.4140968322754],[16.772608630130165,65.5576515197754],[15.717146051649944,61.8222999572754],[14.996269657813299,59.1855812072754],[14.61363550586799,54.9668312072754],[13.675530329736626,51.6269874572754],[12.69077599238401,48.4629249572754],[12.046466172387982,45.7822608947754],[12.304380456022919,44.2002296447754],[12.73367296681467,43.40921401977539],[14.400771563795455,41.7832374572754],[17.57087992254944,40.4209327697754],[18.990524166984617,39.45413589477539],[21.05622032051235,38.8828468322754],[21.238547899443454,38.97949218750001]];
-// const data =[[42.9833333340001, 144.366666666], [76.4940809715964, 94.25542996179381], [73.97996067509472, 107.72091283254615], [59.008728424273016, 5396.490416021871], [-9.953758775743735, 5412.601130410691], [70.05347188222055, 5500.7188461803635], [-22.481739651448212, 132.54281816252129], [41.089509890835416, 309020.1225212498], [55.133333334, -6.66666666699996]]
+const customPath =[[17.1, 73.08333333300011], [16.5, 73.08333333300011], [15.900000000000002, 73.08333333300011], [15.3, 73.08333333300011], [14.700000000000001, 73.08333333300011], [14.100000000000001, 73.08333333300011], [13.500000000000002, 73.08333333300011], [12.900000000000002, 73.08333333300011], [12.300000000000002, 73.08333333300011], [11.700000000000003, 73.6833333330001], [11.100000000000003, 74.2833333330001], [10.500000000000004, 74.8833333330001], [9.900000000000004, 75.48333333300009], [9.300000000000004, 76.08333333300008], [8.700000000000005, 76.68333333300008], [8.100000000000005, 77.28333333300007], [8.100000000000005, 77.88333333300007], [8.100000000000005, 78.48333333300006], [8.700000000000005, 79.08333333300006], [9.300000000000004, 79.68333333300005], [9.900000000000004, 80.28333333300004], [9.900000000000004, 80.88333333300004], [9.900000000000004, 81.48333333300003], [9.900000000000004, 82.08333333300003], [9.900000000000004, 82.68333333300002], [9.900000000000004, 83.28333333300002], [9.900000000000004, 83.88333333300001], [9.900000000000004, 84.483333333], [9.900000000000004, 85.083333333], [9.900000000000004, 85.683333333], [9.900000000000004, 86.28333333299999], [9.900000000000004, 86.88333333299998], [9.900000000000004, 87.48333333299998], [9.900000000000004, 88.08333333299997], [9.900000000000004, 88.68333333299996], [9.900000000000004, 89.28333333299996], [9.900000000000004, 89.88333333299995], [9.900000000000004, 90.48333333299995], [10.500000000000004, 91.08333333299994], [11.100000000000003, 91.68333333299994], [11.700000000000003, 92.28333333299993], [12.300000000000002, 92.88333333299992], [12.900000000000002, 93.48333333299992], [13.500000000000002, 94.08333333299991], [14.100000000000001, 94.68333333299991], [14.700000000000001, 95.2833333329999], [15.3, 95.8833333329999], [15.900000000000002, 96.48333333299989], [16.5, 97.08333333299989]];
 
-let data = [[-27.380726, 153.164001],
-[-32.55598126940562, 132.89152561744405],
-[-38.68868477635183, 145.25393149194323],
-[-34.58233121297391, 151.42139800908168],
-[-31.193196823385875, 153.1674546508274],
-[-29.286146117723938, 154.0657274561335],
-[-27.380726, 153.164001],
-[-29.286146117723938, 154.0657274561335],
-[-31.193196823385875, 153.1674546508274],
-[-32.887764018179894, 152.29442632995455],
-[-38.1337914789332, 149.3352350992913],
-[-34.58233121297391, 151.42139800908168],
-[-36.35806134595356, 150.37831655418648],
-[-38.1337914789332, 149.3352350992913],
-[-38.41123812764251, 147.29458329561726],
-[-36.4285787231018, 138.67276871812027],
-[-38.40983588201509, 141.67102917664076],
-[-39.44654693462295, 143.3926466196631],
-[-38.68868477635183, 145.25393149194323],
-[-39.44654693462295, 143.3926466196631],
-[-38.17007872251291, 139.67572144819744],
-[-38.40983588201509, 141.67102917664076],
-[-38.17007872251291, 139.67572144819744],
-[-35.24002293867604, 135.2812674496286],
-[-36.68365378353612, 136.67936129858393],
-[-36.4285787231018, 138.67276871812027],
-[-36.68365378353612, 136.67936129858393],
-[-35.24002293867604, 135.2812674496286],
-[-33.89800210404083, 134.08639653353632],
-[-34.057727705742074, 119.74641668100259],
-[-32.55598126940562, 132.89152561744405],
-[-32.74369957394768, 131.24838700038885],
-[-32.93141787848973, 129.60524838333367],
-[-33.119136183031785, 127.9621097662785],
-[-34.57647473521128, 123.13484880018243],
-[-33.306854487573844, 126.31897114922332],
-[-33.94166461139256, 124.72690997470286],
-[-34.57647473521128, 123.13484880018243],
-[-34.31710122047667, 121.4406327405925],
-[-29.173686234585748, 114.01331789103607],
-[-34.35611401722289, 114.54530753813764],
-[-35.10544342797745, 117.19741012116424],
-[-34.057727705742074, 119.74641668100259],
-[-35.10544342797745, 117.19741012116424],
-[-34.35611401722289, 114.54530753813764],
-[-31.76490012590432, 114.27931271458685],
-[-25.32245985988792, 113.61503894644517],
-[-29.173686234585748, 114.01331789103607],
-[-27.248073047236836, 113.81417841874062],
-[-23.1926810582307, 113.46778089834697],
-[-25.32245985988792, 113.61503894644517],
-[-23.1926810582307, 113.46778089834697],
-[-21.707338, 115.001208]]
-
-let data_2 = [[18.9499, 72.9512],
-[18.9499, 72.9512],
-[15.99945982609702, 72.62816866773392],
-[15.99945982609702, 72.62816866773392],
-[13.404906136702502, 74.06960462338908],
-[13.404906136702502, 74.06960462338908],
-[10.948453129999006, 75.47149088384803],
-[8.49200012329551, 76.87337714430699],
-[8.49200012329551, 76.87337714430699],
-[9.912423976891004, 79.47949351499022],
-[9.912423976891004, 79.47949351499022],
-[12.577719774346027, 80.78549687389665],
-[12.577719774346027, 80.78549687389665],
-[15.131659887173015, 82.00074843694833],
-[17.6856, 83.216]]
-
-const temp_2 = data_2
-const temp = data
 
 const shippingPathIcon = new L.Icon({
     iconUrl: shipIcon,
@@ -179,9 +108,9 @@ const sqGroup = L.motion.seq([
 ]);
 
 
-const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoutes,curLoc, setCurLoc,seaRouteData}) => {
+const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoutes,curLoc, setCurLoc,seaRouteData,showGrid,advancedRoutes}) => {
     const [map, setMap] = useState(null);
-    console.log(seaRouteData, 'sea');
+    console.log(advancedRoutes, 'advanced');
     // const mb = L.tileLayer.mbTiles('../../data/countries-raster.mbtiles', {
 	// 	minZoom: 0,
 	// 	maxZoom: 6
@@ -217,7 +146,7 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
     };
     const pointToLayer = (feature, latlng) => {
         const div = document.createElement("div");
-        div.innerHTML = "+Add to queue";
+        div.innerHTML = `${latlng.lat}, ${latlng.lng} <br/> +Add to queue`;
         div.className = 'add-to-queue';
         div.onclick = () =>  {
             setCurLoc((prev) => ([...prev, [latlng.lat,latlng.lng]]))
@@ -241,7 +170,27 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
     //     setAlertInfo({text:`lat: ${e.latlng.lat}, lng: ${e.latlng.lng}`,severity:'info',duration:5000})        
     // }
     // const customPopup =new  L.Popup(ReactDOMServer.renderToString(<CustomPopup curLoc={curLoc}/>)); 
-    
+    const handleShowGrid = () => {
+        lines.map((line,i) => {
+            line.map((pt,j) => {
+                const div = document.createElement("div");
+                div.innerHTML = `${pt[0]}, ${pt[1]} <br/> +Add to queue`;
+                div.className = 'add-to-queue';
+                div.onclick = () =>  {
+                    setCurLoc((prev) => ([...prev, [i,j]]))
+                    map.closePopup();
+                }
+                L.circleMarker(pt, {
+                    fillColor: dots[i][j] ? 'red' : 'blue',
+                    color:'#f6f7f9',
+                    color:'black',
+                    weight:1,
+                    radius:3,
+                    fillOpacity:0.65,
+                }).bindPopup(div).addTo(map);
+            })
+        })
+    }
     const whenCreated = (map) => {
         // map.on('contextmenu',(e) => {
         //     console.log('rightclick',e);
@@ -349,6 +298,12 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
                     })}
                 </>;
             })}
+            {/* {
+                jsonData.map((item) => {
+                    const path = [item.origin,item.destination];
+                    return <Polyline pathOptions={{color:'#000d37',weight:1}} positions={path}/>
+                })
+            } */}
             {cRoutes && routes.map(({sea}) => {
                 return !sea?.path ? null : (<>
                     <Polyline pathOptions={{color:'black',weight:1,opacity:1}} positions={sea.path} />
@@ -358,14 +313,44 @@ const Map = ({setAlertInfo,cPorts,countries,airPorts,isClustered,showPath,cRoute
             })}
             {(curLoc && curLoc.length > 0) && <>
                 {curLoc.map((point) => {
-                    return <CircleMarker center={point} radius={7} fillColor='#000d37' color='cyan' weight={5}/>
+                    return <CircleMarker center={lines[point[0]][point[1]]} radius={5} fillColor='#000d37' color='cyan' weight={3}/>
                 })}
             </>}
             {seaRouteData && seaRouteData.length > 0 && <>
                 {seaRouteData.map((route) => {
-                    return route && route.length > 1 ? <Polyline pathOptions={{color:'#000d37',weight:1}} positions={route}/> : null;
+                    return route && route.length > 1 ? <>
+                         <Polyline pathOptions={{color:'#000d37',weight:1}} positions={route}/> 
+                    </> : null;
                 })}
+
             </>
+            }
+            {advancedRoutes && advancedRoutes.length > 0 && <>
+                {advancedRoutes.map((route) => {
+                    return route && route.length > 1 ? <>
+                         <Polyline pathOptions={{color:'purple',weight:4}} positions={route}/> 
+                    </> : null;
+                })}
+
+            </>
+            }
+            {/* <Polyline positions={customPath}/> */}
+            {/* {
+              showGrid &&  lines.map((line,i) => {
+                  return <>
+                  {line.map((point,j)=> {
+                        return <CircleMarker center={point} radius={4} fillColor= {dots[i][j] ? 'red' : 'black'} fillOpacity={1} weight={1}>
+                            <Popup>
+                                {`${point[0]}, ${point[1]}, --> ${i},${j}`}
+                            </Popup>
+                        </CircleMarker>
+                        
+                    })}
+                  </>
+                })
+            }         */}
+            {
+                showGrid && handleShowGrid()
             }
             <Fullscreen />
         </MapContainer>

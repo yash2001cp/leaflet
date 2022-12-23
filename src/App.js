@@ -8,7 +8,7 @@ import seaRoutes from './data/seaRoutes.json'
 const style = {display:"flex",alignItems:'flex-end',justifyContent:'flex-end',height:'8vh',padding:'1vh',marginRight:'5vw',gap:'1rem'};
 const axios = require('axios');
 
-const url = 'https://7a56-103-143-39-118.in.ngrok.io/routes';
+const url = 'http://127.0.0.1:8000/grid_routes';
 function App() {
   const [alertInfo, setAlertInfo] = useState({});
   const [showCPorts, setShowCPorts] = useState(false);
@@ -19,7 +19,8 @@ function App() {
   const [showCRoutes, setShowCRoutes] = useState(false);
   const [curLoc, setCurLoc] = useState([]);
   const [seaRouteData, setSeaRouteData] = useState([]);
-
+  const [advancedRoutes, setAdvancedRoutes] = useState([]);
+  const [showGrid, setShowGrid] = useState(false);
 
   // const [isDeveloperMode, setIsDeveloperMode] = useState(false);
 
@@ -49,7 +50,12 @@ function App() {
       .then(data => {if(data?.routes) {
         setSeaRouteData((prev) => ([...prev,data?.routes]));
         setCurLoc([]);
-      }})
+      }
+      if(data?.grid_routes) {
+        setAdvancedRoutes((prev) => ([...prev,data?.grid_routes]));
+        setCurLoc([]);
+      }
+    })
       .catch(err => console.log(err))
     }
     catch (e){
@@ -65,16 +71,20 @@ function App() {
   return (
         <>
         <Box sx={style}>
-        {showCPorts && <>
+        {showGrid && <>
           <Button variant="contained" onClick={handleGetRoute}>
             Get Route
           </Button>
-          <Button onClick={() => {setCurLoc([]);setSeaRouteData([])}}>Clear Route</Button>
+          <Button onClick={() => {setCurLoc([]);setSeaRouteData([]);setAdvancedRoutes([]);}}>Clear Route</Button>
           
         </>
           }
         
-        
+        <FormControlLabel  control={ <Switch
+            checked={showGrid}
+            color="secondary"
+            onChange={() => setShowGrid(!showGrid)}
+          />} label="showGrid" />
         <FormControlLabel className={showPath ? 'active-path': null} control={ <Switch
             checked={showPath}
             color="secondary"
@@ -109,7 +119,7 @@ function App() {
           />} label="Countries Polygon" />
         </Box>
           <div id="mapId">
-          <Map setAlertInfo={setAlertInfo} cPorts={showCPorts} airPorts={showAirPorts} countries={showPolygons} isClustered={isClustered} showPath={showPath} cRoutes={showCRoutes} curLoc={curLoc} setCurLoc={setCurLoc} seaRouteData={seaRouteData}/>
+          <Map setAlertInfo={setAlertInfo} cPorts={showCPorts} airPorts={showAirPorts} countries={showPolygons} isClustered={isClustered} showPath={showPath} cRoutes={showCRoutes} curLoc={curLoc} setCurLoc={setCurLoc} seaRouteData={seaRouteData} advancedRoutes={advancedRoutes} showGrid = {showGrid}/>
           <Message {...alertInfo}/>
         </div>
         </>
