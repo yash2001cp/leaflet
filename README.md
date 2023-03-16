@@ -55,6 +55,7 @@ The `shell` command is useful for development. It drops you into an python shell
 ### Without using CogoMaps CLI
 
 Once the virtualenv is activated, you can install the required dependencies.
+```
 python3 -m pip install --upgrade -r requirements.txt
 ```
 
