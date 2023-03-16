@@ -16,7 +16,10 @@ source .venv/bin/activate
 ### Using CogoMaps CLI
 Cogo-Maps provides with a CLI, providing server,shell and more to come commands
 
-Run this command before we start
+Run these commands before we start
+```
+cd app
+```
 ```
 pip install --editable .
 ```
