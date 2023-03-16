@@ -28,6 +28,21 @@ The `develop` command starts the development server if a port is busy it will se
 ```bash
 > maps server develop
 ```
+#### Start
+
+The `start` command starts a maps web server of production grade. It's an alias to the [uvicorn](https://www.uvicorn.org/) web server, it contains all of the options available with that server.
+
+```bash
+> maps server start --help
+Usage: maps server start [OPTIONS] main:app
+
+Options:
+  --port INTEGER                  Bind socket to this port.  [default: 8000]
+  --reload                        Enable auto-reload.
+  --reload-dir TEXT               Sets reload directories explicitly, instead
+                                  of using the current working directory.
+  ...
+```
 
 #### Shell
 
