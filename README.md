@@ -41,7 +41,7 @@ The `develop` command starts the development server if a port is busy it will se
 ```
 #### Start
 
-The `start` command starts a maps web server of production grade. It's an alias to the [uvicorn](https://www.uvicorn.org/) web server, it contains all of the options available with that server.
+The `start` command starts a envision web server of production grade. It's an alias to the [uvicorn](https://www.uvicorn.org/) web server, it contains all of the options available with that server.
 
 ```bash
 > envision server start --help
@@ -62,6 +62,19 @@ The `shell` command is useful for development. It drops you into an python shell
 ```bash
 > envision server shell
 ```
+
+Note: Envision shell has autoreload enabled to disable it run
+
+```
+%autoreload 0
+```
+
+to enable it again run
+
+```
+%autoreload
+```
+
 
 ### Without using Envision CLI
 
