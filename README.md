@@ -75,6 +75,12 @@ to enable it again run
 %autoreload
 ```
 
+to reload it just once run 
+
+```
+%autoreload 2
+```
+
 
 ### Without using Envision CLI
 
