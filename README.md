@@ -51,6 +51,12 @@ To get the time required to execute a function run
 %timeit max(1,3)
 ```
 
+the output will be
+
+```
+58.9 ns ± 0.185 ns per loop (mean ± std. dev. of 7 runs, 10,000,000 loops each)
+```
+
 #### Start
 
 The `start` command starts a maps web server of production grade. It's an alias to the [uvicorn](https://www.uvicorn.org/) web server, it contains all of the options available with that server.
