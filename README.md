@@ -1,32 +1,24 @@
+# cogo-maps service
 
-# Welcome to OCEAN DYNAMIC PRICING ENGINE
 
+## Backend Maps New
 
 To manually create a virtualenv on MacOS and Linux:
 
 ```
-$ python3 -m venv .venv
+python3 -m venv .venv
 ```
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
-
+After the init process completes and the virtualenv is created, you can use the following step to activate your virtualenv.
 ```
-$ source .venv/bin/activate
+source .venv/bin/activate
 ```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
-```
-
-### Using Envision CLI
-Envision provides with a CLI, providing server,shell and more to come commands
+### Using CogoMaps CLI
+Cogo-Maps provides with a CLI, providing server,shell and more to come commands
 
 Run these commands before we start
 ```
-cd src
+cd app
 ```
 ```
 pip install --editable .
@@ -37,14 +29,34 @@ pip install --editable .
 The `develop` command starts the development server if a port is busy it will select the next port. This server will continually watch for file changes and reload the server accordingly.
 
 ```bash
-> envision server develop
+> maps server develop
 ```
+
+Maps shell has autoreload enabled, to disable it run
+
+```
+%autoreload 0
+```
+
+or to reload just once run
+
+```
+%autoreload 1
+```
+
+
+To get the time required to execute a function run
+
+```
+%timeit max(1,3)
+```
+
 #### Start
 
-The `start` command starts a envision web server of production grade. It's an alias to the [uvicorn](https://www.uvicorn.org/) web server, it contains all of the options available with that server.
+The `start` command starts a maps web server of production grade. It's an alias to the [uvicorn](https://www.uvicorn.org/) web server, it contains all of the options available with that server.
 
 ```bash
-> envision server start --help
+> maps server start --help
 Usage: maps server start [OPTIONS] main:app
 
 Options:
@@ -60,52 +72,26 @@ Options:
 The `shell` command is useful for development. It drops you into an python shell with the database connection.
 
 ```bash
-> envision server shell
+> maps server shell
 ```
 
-Note: Envision shell has autoreload enabled to disable it run
+### Without using CogoMaps CLI
 
+Once the virtualenv is activated, you can install the required dependencies.
 ```
-%autoreload 0
-```
-
-to enable it again run
-
-```
-%autoreload
+python3 -m pip install --upgrade -r requirements.txt
 ```
 
-to reload it just once run 
+After Installing the dependencies you can run server using
 
 ```
-%autoreload 2
+cd app
+```
+```
+uvicorn main:app --reload --port 8000
 ```
 
-
-### Without using Envision CLI
-
+You can generate the requirement file using your virtualenv using
 ```
-$ python3 -m pip install --upgrade -r requirements.txt
-```
-
 pip3 freeze > requirements.txt
-
-At this point you can now synthesize the CloudFormation template for this code.
-
 ```
-$ cdk synth
-```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
-
-## Useful commands
-
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
