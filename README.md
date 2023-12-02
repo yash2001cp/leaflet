@@ -1,11 +1,11 @@
-# shipment
-All the shipment related functionalities are stored here
+# Cogo lens
+Welcome to Cogoport OCR Repo!
 
+This repository stores all the codebase for cogoport ocr service.
 
-# Welcome to Shipment Engine 
+## RUN DEV
 
-
-To manually create a virtualenv on MacOS and Linux: 
+To manually create a virtualenv on MacOS and Linux:
 
 ```
 $ python3 -m venv .venv
@@ -21,11 +21,11 @@ $ source .venv/bin/activate
 If you are a Windows platform, you would activate the virtualenv like this:
 
 ```
-% .venv\Scripts\activate.bat 
+% .venv\Scripts\activate.bat
 ```
 
-### Using Shipment CLI
-Shipment provides with a CLI, providing server,shell and more to come commands
+### Using ML CLI
+ML provides with a CLI, providing server,shell and more to come commands
 
 Run these commands before we start
 ```
@@ -40,15 +40,15 @@ pip install --editable .
 The `develop` command starts the development server if a port is busy it will select the next port. This server will continually watch for file changes and reload the server accordingly.
 
 ```bash
-> shipment server develop
+> ml server develop
 ```
 #### Start
 
-The `start` command starts a shipment web server of production grade. It's an alias to the [uvicorn](https://www.uvicorn.org/) web server, it contains all of the options available with that server.
+The `start` command starts a envision web server of production grade. It's an alias to the [uvicorn](https://www.uvicorn.org/) web server, it contains all of the options available with that server.
 
 ```bash
-> shipment server start --help
-Usage: maps server start [OPTIONS] main:app
+> ml server start --help
+Usage: ml server start [OPTIONS] main:app
 
 Options:
   --port INTEGER                  Bind socket to this port.  [default: 8000]
@@ -63,16 +63,16 @@ Options:
 The `shell` command is useful for development. It drops you into an python shell with the database connection.
 
 ```bash
-> shipment server shell
+> ml server shell
 ```
 
-By default our shell has logger enable to disable it we have --nolog option
+By default our shell has logger enabled to disable it we have --nolog option
 
 ```bash
-> shipment server shell --nolog
+> ml server shell --nolog
 ```
 
-Shipment shell has autoreload enabled, to disable it run
+ML shell has autoreload enabled, to disable it run
 
 ```
 %autoreload 0
@@ -90,38 +90,34 @@ to reload it just once run
 %autoreload 2
 ```
 
-
-### Without using Shipment CLI
+### Without using ML CLI
 
 ```
 $ python3 -m pip install --upgrade -r requirements.txt
 ```
 
+```
 pip3 freeze > requirements.txt
+```
 
 ```
-cd src
-
+cd app
 ```
 
 ```
 uvicorn main:app --reload
-
 ```
-
-Enjoy!
-
 
 ## Start Celery
 
 ```
-$ celery -A workers.celery_worker.celery worker -B --loglevel=info -Q communication,critical,low,shipment,workflow
+$ celery -A workers.celery.celery worker -B --loglevel=info -Q critical
 
 ```
 
 ## Start Flower
 
 ```
-$ celery -A workers.celery_worker.celery flower --port=5555 -Q communication,critical,low,shipment,workflow
+$ celery -A workers.celery.celery flower --port=5555 -Q critical
 
 ```
